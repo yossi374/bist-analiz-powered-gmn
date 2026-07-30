@@ -14,12 +14,13 @@ app = FastAPI(
     description="BIST (Borsa Istanbul) Financial Analysis Engine Backend"
 )
 
+# CORS Ayarları - Vercel bağlantısını yüzde yüz garantiye alan güncel hali
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.FRONTEND_ORIGINS,
+    allow_origins=["*"],  # Tüm kaynaklardan (Vercel dahil) gelen isteklere izin verilir
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],  # Tüm HTTP metodlarına izin verilir
+    allow_headers=["*"],  # Tüm başlıklara izin verilir
 )
 
 app.include_router(market.router, prefix="/api/v1/market", tags=["Market"])
