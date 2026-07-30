@@ -15,7 +15,7 @@ from app.models.enums import AgentRole
 class AIAnalyzer:
     def __init__(self):
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
-        self.model_name = "gemini-1.5-flash"  # Aktif ve güncel model adı
+        self.model_name = "gemini-3.6-flash"  # veya "gemini-3.6-flash"
 
     async def _call_agent(self, system_prompt: str, user_prompt: str, retries: int = 3) -> Dict[str, Any]:
         """Gemini API'ye prompt gönderir. 429 durumunda retry yapar."""
