@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BIST Finansal Analiz Motoru | AI Destekli Hisse Analizi">
+    <title>BIST Finansal Analiz Motoru | AI Destekli</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <script src="https://unpkg.com/lightweight-charts@4/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark">
+    <!-- Header -->
+    <header class="app-header">
+        <div class="logo-container">
+            <i data-lucide="trending-up" class="logo-icon"></i>
+            <h1 class="logo-text">BIST Analiz</h1>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input type="text" id="stock-search" placeholder="Hisse senedi ara (Örn: THYAO)" autocomplete="off">
+                <div id="search-results" class="search-results hidden">
+                    <!-- Search results injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="header-status">
+            <div class="index-display" id="bist100-display">
+                <span class="index-name">BIST 100</span>
+                <span class="index-value skeleton-text"></span>
+                <span class="index-change"></span>
+            </div>
+            <div class="connection-status" id="ws-status">
+                <div class="status-dot"></div>
+                <span class="status-text">Bağlanıyor...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="main-grid">
+            <!-- Left Column: Price & Chart -->
+            <div class="col-left">
+                <!-- Price Hero Card -->
+                <div class="glass-card price-card" id="price-card">
+                    <div class="price-header">
+                        <div class="symbol-info">
+                            <h2 id="hero-symbol" class="skeleton-text">THYAO</h2>
+                            <span id="hero-name" class="skeleton-text">Türk Hava Yolları</span>
+                        </div>
+                        <div class="price-info">
+                            <div class="price-main-wrapper">
+                                <span id="hero-price" class="price-main mono-font skeleton-text">0.00</span>
+                                <span id="hero-currency" class="price-currency">₺</span>
+                            </div>
+                            <div id="hero-change-container" class="price-change-container">
+                                <i data-lucide="arrow-up" id="hero-change-icon" class="change-icon"></i>
+                                <span id="hero-change" class="change-value mono-font skeleton-text">0.00%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="price-range">
+                        <div class="range-labels">
+                            <span class="range-label">Günlük Düşük: <strong id="hero-low" class="mono-font skeleton-text">0.00</strong></span>
+                            <span class="range-label">Günlük Yüksek: <strong id="hero-high" class="mono-font skeleton-text">0.00</strong></span>
+                        </div>
+                        <div class="range-bar-container">
+                            <div id="hero-range-bar" class="range-bar-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Chart Container -->
+                <div class="glass-card chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-wrapper">
+                            <i data-lucide="bar-chart-2"></i>
+                            <h3>Fiyat Grafiği</h3>
+                        </div>
+                        <div class="chart-periods" id="chart-periods">
+                            <!-- Buttons injected here -->
+                        </div>
+                    </div>
+                    <div class="chart-container-wrapper skeleton-box" id="chart-skeleton"></div>
+                    <div id="chart-container" class="chart-container"></div>
+                </div>
+            </div>
+            
+            <!-- Right Column: Indicators & AI Analysis -->
+            <div class="col-right">
+                <!-- Quick Signal Card -->
+                <div class="glass-card quick-signal-card">
+                    <div class="card-header">
+                        <i data-lucide="zap"></i>
+                        <h3>Hızlı Sinyal</h3>
+                    </div>
+                    <div class="quick-signal-content" id="quick-signal-content">
+                        <div class="skeleton-box" style="height: 100px; width: 100%; border-radius: 8px;"></div>
+                    </div>
+                </div>
+                
+                <!-- Technical Indicators -->
+                <div class="glass-card indicators-card">
+                    <div class="card-header">
+                        <i data-lucide="activity"></i>
+                        <h3>Teknik Göstergeler</h3>
+                    </div>
+                    
+                    <div class="indicators-grid" id="indicators-grid">
+                        <!-- RSI Gauge -->
+                        <div class="indicator-item rsi-container">
+                            <span class="indicator-label">RSI (14)</span>
+                            <div class="rsi-gauge" id="rsi-gauge">
+                                <div class="rsi-value mono-font skeleton-text" id="rsi-value">0</div>
+                                <div class="rsi-ring" id="rsi-ring"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Other Indicators -->
+                        <div class="indicator-list">
+                            <div class="ind-row">
+                                <span class="ind-name">MACD</span>
+                                <span class="ind-val mono-font skeleton-text" id="ind-macd">0.00</span>
+                            </div>
+                            <div class="ind-row">
+                                <span class="ind-name">SMA (20)</span>
+                                <span class="ind-val mono-font skeleton-text" id="ind-sma20">0.00</span>
+                            </div>
+                            <div class="ind-row">
+                                <span class="ind-name">SMA (50)</span>
+                                <span class="ind-val mono-font skeleton-text" id="ind-sma50">0.00</span>
+                            </div>
+                            <div class="ind-row">
+                                <span class="ind-name">ATR (14)</span>
+                                <span class="ind-val mono-font skeleton-text" id="ind-atr">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI Analysis Trigger -->
+                <button id="btn-ai-analysis" class="btn-primary btn-large">
+                    <i data-lucide="sparkles"></i>
+                    <span>Kapsamlı Yapay Zeka Analizi Başlat</span>
+                    <div class="btn-loader hidden"></div>
+                </button>
+            </div>
+        </div>
+        
+        <!-- AI Analysis Results (Initially Hidden) -->
+        <section id="ai-results-section" class="ai-results-section hidden">
+            <div class="section-title">
+                <h2>Yapay Zeka Analiz Sonuçları</h2>
+                <p class="section-subtitle">Farklı uzman ajanların değerlendirmesi</p>
+            </div>
+            
+            <div class="agents-grid" id="agents-grid">
+                <!-- Agent cards injected here -->
+                <div class="skeleton-box" style="height: 300px; border-radius: 12px;"></div>
+                <div class="skeleton-box" style="height: 300px; border-radius: 12px;"></div>
+                <div class="skeleton-box" style="height: 300px; border-radius: 12px;"></div>
+            </div>
+            
+            <div class="final-decision-container" id="final-decision-container">
+                <!-- Final decision injected here -->
+                <div class="skeleton-box" style="height: 200px; border-radius: 16px;"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="app-footer">
+        <p>Powered by Gemini AI | Veriler 15dk gecikmelidir | Yatırım tavsiyesi değildir</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/chart.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
