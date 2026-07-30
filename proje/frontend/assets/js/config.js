@@ -1,6 +1,6 @@
 const CONFIG = {
-  API_BASE_URL: '/api/v1',
-  WS_BASE_URL: (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws',
+  API_BASE_URL: 'https://bist-analiz-backend.onrender.com/api/v1',
+  WS_BASE_URL: 'wss://bist-analiz-backend.onrender.com/ws',
   
   POPULAR_STOCKS: [
     { symbol: 'THYAO', name: 'Türk Hava Yolları' },
